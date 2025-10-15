@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduIntel AI - AI-Powered Institutional Analysis</title>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden">
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center transition-opacity duration-500">
+        <div class="glass-card p-8 w-full max-w-md mx-4">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold mb-2 animated-gradient bg-clip-text text-transparent" style="color:rgb(2, 221, 221)">EduIntel AI</h1>
+                <p class="text-slate-300 text-sm" style="color: black;">AI-Powered Institutional Analysis</p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2" style="color: black;">Email/Username</label>
+                    <input type="text" id="login-username" class="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-sky-400 focus:outline-none" placeholder="Enter your email or username" required>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2" style="color: black;">Password</label>
+                    <input type="password" id="login-password" class="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-sky-400 focus:outline-none" placeholder="Enter your password" required>
+                </div>
+
+                <button type="submit" class="w-full animated-gradient text-white py-3 px-4 rounded-lg font-semibold">
+                    Secure Login
+                </button>
+
+                <div id="login-error" class="text-red-400 text-sm text-center hidden"></div>
+
+                <div class="text-center text-sm text-slate-400" style="color: black;">
+                    Don't have an account? <span id="show-signup" class="text-sky-400 cursor-pointer hover:text-sky-300" style="color:rgb(2, 221, 221)">Sign up here</span>
+                </div>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signup-form" class="space-y-6 hidden">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Full Name</label>
+                    <input type="text" id="signup-name" class="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-sky-400 focus:outline-none" placeholder="Enter your full name" required>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Email</label>
+                    <input type="email" id="signup-email" class="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-sky-400 focus:outline-none" placeholder="Enter your email" required>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Password</label>
+                    <input type="password" id="signup-password" class="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-sky-400 focus:outline-none" placeholder="Enter your password" required>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Confirm Password</label>
+                    <input type="password" id="signup-confirm-password" class="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-sky-400 focus:outline-none" placeholder="Confirm your password" required>
+                </div>
+
+                <button type="submit" class="w-full animated-gradient text-white py-3 px-4 rounded-lg font-semibold">
+                    Create Account
+                </button>
+
+                <div id="signup-error" class="text-red-400 text-sm text-center hidden"></div>
+
+                <div class="text-center text-sm text-slate-400">
+                    Already have an account? <span id="show-login" class="text-sky-400 cursor-pointer hover:text-sky-300">Login here</span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Wrapper -->
+    <div id="app-wrapper" class="opacity-0 flex h-full">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-blue-dark border-r border-blue-light flex-shrink-0">
+            <div class="p-6 border-b border-blue-light">
+                <h1 class="text-xl font-bold text-white">EduIntel AI</h1>
+            </div>
+
+            <nav id="sidebar-nav" class="mt-6 px-3">
+                <a href="#" class="nav-link flex items-center px-4 py-3 text-slate-300 rounded-lg mb-2 hover:bg-blue-light active" data-target="dashboard">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Dashboard
+                </a>
+                <a href="#" class="nav-link flex items-center px-4 py-3 text-slate-300 rounded-lg mb-2 hover:bg-blue-light" data-target="reports">
+                    <i data-lucide="file-text" class="w-5 h-5 mr-3"></i> Reports
+                </a>
+                <a href="#" class="nav-link flex items-center px-4 py-3 text-slate-300 rounded-lg mb-2 hover:bg-blue-light" data-target="analysis">
+                    <i data-lucide="trending-up" class="w-5 h-5 mr-3"></i> Analysis
+                </a>
+                <a href="#" class="nav-link flex items-center px-4 py-3 text-slate-300 rounded-lg mb-2 hover:bg-blue-light" data-target="institutions">
+                    <i data-lucide="building-2" class="w-5 h-5 mr-3"></i> Institutions
+                </a>
+                <a href="#" class="nav-link flex items-center px-4 py-3 text-slate-300 rounded-lg mb-2 hover:bg-blue-light" data-target="settings">
+                    <i data-lucide="settings" class="w-5 h-5 mr-3"></i> Settings
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col min-h-0">
+            <!-- Header -->
+            <header class="bg-blue-dark border-b border-blue-light px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 id="page-title" class="text-xl font-semibold text-white">Dashboard Overview</h2>
+                        <p id="page-subtitle" class="text-slate-400 text-sm">Welcome back, Administrator. Here's your institution analysis at a glance.</p>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <!-- Search Bar -->
+                        <div class="relative">
+                            <input type="text" id="global-search" placeholder="Search institutions..." class="w-64 px-4 py-2 bg-blue-card border border-blue-light rounded-lg text-white placeholder-slate-400 focus:border-sky-400 focus:outline-none">
+                            <i data-lucide="search" class="w-4 h-4 absolute right-3 top-3 text-slate-400"></i>
+                        </div>
+
+                        <!-- Notifications -->
+                        <div class="relative">
+                            <button id="notifications-btn" class="relative p-2 bg-blue-card rounded-lg text-slate-300 hover:text-white">
+                                <i data-lucide="bell" class="w-5 h-5"></i>
+                                <span id="notification-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                            </button>
+                            <div id="notifications-dropdown" class="absolute right-0 top-12 w-80 bg-blue-dark border border-blue-light rounded-lg shadow-lg hidden z-50">
+                                <div class="p-4 border-b border-blue-light">
+                                    <h3 class="font-semibold text-white">Notifications</h3>
+                                </div>
+                                <div id="notifications-list" class="max-h-64 overflow-y-auto">
+                                    <!-- Notifications will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Profile -->
+                        <div class="relative">
+                            <button id="profile-btn" class="flex items-center gap-2 p-2 bg-blue-card rounded-lg text-slate-300 hover:text-white">
+                                <div class="w-8 h-8 bg-sky-500 rounded-full flex items-center justify-center text-white font-semibold">A</div>
+                                <span id="user-name">Admin</span>
+                                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                            </button>
+                            <div id="profile-dropdown" class="absolute right-0 top-12 w-48 bg-blue-dark border border-blue-light rounded-lg shadow-lg hidden z-50">
+                                <div class="p-2">
+                                    <button class="w-full text-left px-3 py-2 text-slate-300 hover:bg-blue-light rounded">Profile</button>
+                                    <button class="w-full text-left px-3 py-2 text-slate-300 hover:bg-blue-light rounded">Account Settings</button>
+                                    <div class="border-t border-blue-light my-2"></div>
+                                    <button id="logout-btn" class="w-full text-left px-3 py-2 text-red-400 hover:bg-blue-light rounded">Sign Out</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div id="dashboard" class="page-content flex-1 p-6 overflow-y-auto">
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="dashboard-card p-6 slide-in-up">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-slate-400 text-sm">Total Institutions</p>
+                                <p class="text-2xl font-bold text-white mt-1" id="total-institutions">1,250</p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                <i data-lucide="building-2" class="w-6 h-6 text-blue-400"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card p-6 slide-in-up" style="animation-delay: 0.1s">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-slate-400 text-sm">Approved Applications</p>
+                                <p class="text-2xl font-bold text-white mt-1" id="approved-applications">983</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                <i data-lucide="check-circle" class="w-6 h-6 text-green-400"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card p-6 slide-in-up" style="animation-delay: 0.2s">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-slate-400 text-sm">Pending Review</p>
+                                <p class="text-2xl font-bold text-white mt-1" id="pending-review">152</p>
+                            </div>
+                            <div class="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                                <i data-lucide="clock" class="w-6 h-6 text-yellow-400"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card p-6 slide-in-up" style="animation-delay: 0.3s">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-slate-400 text-sm">High-Risk Profiles</p>
+                                <p class="text-2xl font-bold text-white mt-1" id="high-risk-profiles">47</p>
+                            </div>
+                            <div class="w-12 h-12 bg-red-500/20 rounded-lg flex items-center justify-center">
+                                <i data-lucide="alert-triangle" class="w-6 h-6 text-red-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+                    <!-- Historical Performance Chart -->
+                    <div class="xl:col-span-2 dashboard-card p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-white">Historical Performance Trend</h3>
+                            <div class="flex gap-2">
+                                <button class="college-btn px-3 py-1 bg-sky-500 text-white rounded text-sm" data-college="IIT Bombay">IIT Bombay</button>
+                                <button class="college-btn px-3 py-1 bg-blue-card text-slate-300 rounded text-sm" data-college="VIT Vellore">VIT Vellore</button>
+                                <button class="college-btn px-3 py-1 bg-blue-card text-slate-300 rounded text-sm" data-college="Delhi University">Delhi University</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="performance-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Document Sufficiency - FIXED CENTERING -->
+                    <div class="dashboard-card p-6">
+                        <h3 class="text-lg font-semibold text-white mb-6">Document Sufficiency</h3>
+                        <div class="flex flex-col items-center">
+                            <div class="relative mb-6">
+                                <canvas id="sufficiency-chart" width="140" height="140"></canvas>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-2xl font-bold text-white" id="doc-sufficiency-value">89%</span>
+                                </div>
+                            </div>
+                            <p class="text-slate-400 text-sm text-center leading-relaxed" id="doc-sufficiency-text">AI scan indicates a high level of document completeness for IIT Bombay.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Insights & Pending Review -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <!-- AI Insights -->
+                    <div class="dashboard-card p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4">AI-Generated Insights</h3>
+                        <div id="ai-insights-content" class="text-slate-300 text-sm mb-4">
+                            Click the button below to generate AI-powered insights for IIT Bombay.
+                        </div>
+                        <button id="generate-insights-btn" class="animated-gradient text-white px-4 py-2 rounded-lg text-sm font-medium">
+                            ✨ Analyze & Suggest
+                        </button>
+                    </div>
+
+                    <!-- Institutions Pending Review -->
+                    <div class="xl:col-span-2 dashboard-card p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4">Institutions Pending Review</h3>
+                        <div class="overflow-x-auto">
+                            <table id="pending-review-table" class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b border-blue-light">
+                                        <th class="text-left py-2 text-slate-400">Institution Name</th>
+                                        <th class="text-left py-2 text-slate-400">Type</th>
+                                        <th class="text-left py-2 text-slate-400">Submitted</th>
+                                        <th class="text-left py-2 text-slate-400">AI Score</th>
+                                        <th class="text-left py-2 text-slate-400">Status</th>
+                                        <th class="text-left py-2 text-slate-400">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-slate-300">
+                                    <tr class="border-b border-blue-light/50">
+                                        <td class="py-3">National Institute of Technology, Warangal</td>
+                                        <td class="py-3">Public/Technical</td>
+                                        <td class="py-3">2 days ago</td>
+                                        <td class="py-3"><span class="text-green-400">92/100</span></td>
+                                        <td class="py-3"><span class="bg-green-500/20 text-green-400 px-2 py-1 rounded text-xs">Ready for Review</span></td>
+                                        <td class="py-3">
+                                            <button class="generate-report-btn bg-sky-500 text-white px-3 py-1 rounded text-xs">Generate Report</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-blue-light/50">
+                                        <td class="py-3">Amity University, Noida</td>
+                                        <td class="py-3">Private</td>
+                                        <td class="py-3">5 days ago</td>
+                                        <td class="py-3"><span class="text-yellow-400">78/100</span></td>
+                                        <td class="py-3"><span class="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded text-xs">AI Flagged Docs</span></td>
+                                        <td class="py-3">
+                                            <button class="generate-report-btn bg-sky-500 text-white px-3 py-1 rounded text-xs">Generate Report</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Content -->
+            <div id="reports" class="page-content hidden flex-1 p-6 overflow-y-auto">
+                <div class="max-w-7xl mx-auto">
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-white mb-2">Reports Management</h2>
+                        <p class="text-slate-400">Generate AI-powered analysis reports for institutions</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Generate New Report -->
+                        <div class="dashboard-card p-6">
+                            <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4">
+                                <i data-lucide="file-plus" class="w-6 h-6 text-blue-400"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-white mb-2">Generate New Report</h3>
+                            <p class="text-slate-400 text-sm mb-4">Create AI-powered analysis reports for institutions</p>
+                            <button id="generate-new-report-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">Generate Report</button>
+                        </div>
+
+                        <!-- Recent Reports -->
+                        <div class="dashboard-card p-6">
+                            <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mb-4">
+                                <i data-lucide="file-text" class="w-6 h-6 text-green-400"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-white mb-2">Recent Reports</h3>
+                            <p class="text-slate-400 text-sm mb-4">View and download recently generated reports</p>
+                            <button id="view-reports-btn" class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">View Reports</button>
+                        </div>
+
+                        <!-- Report Templates -->
+                        <div class="dashboard-card p-6">
+                            <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-4">
+                                <i data-lucide="layout" class="w-6 h-6 text-purple-400"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-white mb-2">Report Templates</h3>
+                            <p class="text-slate-400 text-sm mb-4">Manage and customize report templates</p>
+                            <button id="manage-templates-btn" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg">Manage Templates</button>
+                        </div>
+                    </div>
+
+                    <!-- Recent Reports Table -->
+                    <div class="dashboard-card p-6 mt-8">
+                        <h3 class="text-lg font-semibold text-white mb-4">Generated Reports</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b border-blue-light">
+                                        <th class="text-left py-2 text-slate-400">Report Name</th>
+                                        <th class="text-left py-2 text-slate-400">Institution</th>
+                                        <th class="text-left py-2 text-slate-400">Generated</th>
+                                        <th class="text-left py-2 text-slate-400">Status</th>
+                                        <th class="text-left py-2 text-slate-400">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reports-table-body" class="text-slate-300">
+                                    <!-- Reports will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis Content -->
+            <div id="analysis" class="page-content hidden flex-1 p-6 overflow-y-auto">
+                <div class="max-w-7xl mx-auto">
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-white mb-2">Institution Analysis</h2>
+                        <p class="text-slate-400">AI-powered comparative analysis of institutional performance</p>
+                    </div>
+
+                    <!-- Analysis Tools -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <!-- Individual Analysis -->
+                        <div class="dashboard-card p-6">
+                            <h3 class="text-lg font-semibold text-white mb-4">Individual Institution Analysis</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-300 mb-2">Select Institution</label>
+                                    <select id="individual-analysis-select" class="w-full px-4 py-2 bg-blue-card border border-blue-light rounded-lg text-white">
+                                        <option value="">Choose an institution</option>
+                                        <!-- All institutions will be populated here -->
+                                    </select>
+                                </div>
+                                <button id="generate-individual-analysis" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">Generate AI Analysis</button>
+                            </div>
+                        </div>
+
+                        <!-- Comparative Analysis -->
+                        <div class="dashboard-card p-6">
+                            <h3 class="text-lg font-semibold text-white mb-4">Comparative Analysis</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-300 mb-2">First Institution</label>
+                                    <select id="compare-select-1" class="w-full px-4 py-2 bg-blue-card border border-blue-light rounded-lg text-white">
+                                        <option value="">Choose first institution</option>
+                                        <!-- All institutions will be populated here -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-300 mb-2">Second Institution</label>
+                                    <select id="compare-select-2" class="w-full px-4 py-2 bg-blue-card border border-blue-light rounded-lg text-white">
+                                        <option value="">Choose second institution</option>
+                                        <!-- All institutions will be populated here -->
+                                    </select>
+                                </div>
+                                <button id="generate-comparison" class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">Compare with AI</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Results -->
+                    <div id="analysis-results" class="dashboard-card p-6 hidden">
+                        <h3 class="text-lg font-semibold text-white mb-4">AI Analysis Results</h3>
+                        <div id="analysis-content">
+                            <!-- Analysis content will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Institutions Content -->
+            <div id="institutions" class="page-content hidden flex-1 p-6 overflow-y-auto">
+                <div class="max-w-7xl mx-auto">
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-white mb-2">Institution Database</h2>
+                        <p class="text-slate-400">Comprehensive database of UGC and AICTE affiliated institutions</p>
+                    </div>
+
+                    <!-- Search and Filters -->
+                    <div class="dashboard-card p-6 mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <input type="text" id="institution-search" placeholder="Search institutions..." class="w-full px-4 py-2 bg-blue-card border border-blue-light rounded-lg text-white placeholder-slate-400">
+                            </div>
+                            <div>
+                                <select id="filter-type" class="w-full px-4 py-2 bg-blue-card border border-blue-light rounded-lg text-white">
+                                    <option value="">All Types</option>
+                                    <option value="Public">Public</option>
+                                    <option value="Private">Private</option>
+                                    <option value="Deemed">Deemed University</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select id="filter-affiliation" class="w-full px-4 py-2 bg-blue-card border border-blue-light rounded-lg text-white">
+                                    <option value="">All Affiliations</option>
+                                    <option value="UGC">UGC</option>
+                                    <option value="AICTE">AICTE</option>
+                                    <option value="Both">Both</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button id="clear-filters" class="w-full bg-blue-card hover:bg-blue-light text-white px-4 py-2 rounded-lg">Clear Filters</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Institutions Table -->
+                    <div class="dashboard-card p-6">
+                        <div class="overflow-x-auto">
+                            <table id="institutions-table" class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b border-blue-light">
+                                        <th class="text-left py-2 text-slate-400">Institution Name</th>
+                                        <th class="text-left py-2 text-slate-400">Location</th>
+                                        <th class="text-left py-2 text-slate-400">Type</th>
+                                        <th class="text-left py-2 text-slate-400">Affiliation</th>
+                                        <th class="text-left py-2 text-slate-400">Established</th>
+                                        <th class="text-left py-2 text-slate-400">Status</th>
+                                        <th class="text-left py-2 text-slate-400">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="institutions-tbody" class="text-slate-300">
+                                    <!-- Institution data will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="pagination" class="mt-6 flex justify-center">
+                            <!-- Pagination will be added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Content - ENHANCED -->
+            <div id="settings" class="page-content hidden flex-1 p-6 overflow-y-auto">
+                <div class="max-w-4xl mx-auto">
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-white mb-2">Settings</h2>
+                        <p class="text-slate-400">Manage your account settings and application preferences</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- Account Settings -->
+                        <div class="dashboard-card p-6">
+                            <h3 class="text-lg font-semibold text-white mb-4">Account Settings</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-300 mb-2">Full Name</label>
+                                    <input type="text" id="settings-name" class="w-full px-4 py-2 bg-blue-card border border-blue-light rounded-lg text-white" value="">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-300 mb-2">Email Address</label>
+                                    <input type="email" id="settings-email" class="w-full px-4 py-2 bg-blue-card border border-blue-light rounded-lg text-white" value="">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-300 mb-2">Department</label>
+                                    <select id="settings-department" class="w-full px-4 py-2 bg-blue-card border border-blue-light rounded-lg text-white">
+                                        <option value="ugc">UGC</option>
+                                        <option value="aicte">AICTE</option>
+                                        <option value="both">Both</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-300 mb-2">Role</label>
+                                    <select id="settings-role" class="w-full px-4 py-2 bg-blue-card border border-blue-light rounded-lg text-white">
+                                        <option value="admin">Administrator</option>
+                                        <option value="analyst">Analyst</option>
+                                        <option value="reviewer">Reviewer</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button id="update-profile-btn" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">Update Profile</button>
+                        </div>
+
+                        <!-- Notification Preferences -->
+                        <div class="dashboard-card p-6">
+                            <h3 class="text-lg font-semibold text-white mb-4">Notification Preferences</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <label class="text-white font-medium">Email Notifications</label>
+                                        <p class="text-slate-400 text-sm">Receive email alerts for important updates</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="email-notifications" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <label class="text-white font-medium">SMS Alerts</label>
+                                        <p class="text-slate-400 text-sm">Get SMS alerts for urgent notifications</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="sms-alerts" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <label class="text-white font-medium">High Priority Alerts</label>
+                                        <p class="text-slate-400 text-sm">Immediate alerts for critical issues</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="high-priority-alerts" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <label class="text-white font-medium">Weekly Reports</label>
+                                        <p class="text-slate-400 text-sm">Weekly summary reports via email</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="weekly-reports" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Application Preferences -->
+                        <div class="dashboard-card p-6">
+                            <h3 class="text-lg font-semibold text-white mb-4">Application Preferences</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <label class="text-white font-medium">Dark Mode</label>
+                                        <p class="text-slate-400 text-sm">Use dark theme interface</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="dark-mode" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <label class="text-white font-medium">Auto-save Reports</label>
+                                        <p class="text-slate-400 text-sm">Automatically save generated reports</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="auto-save-reports" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <label class="text-white font-medium">Advanced Analytics</label>
+                                        <p class="text-slate-400 text-sm">Enable advanced analysis features</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="advanced-analytics" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <label class="text-white font-medium">Data Export</label>
+                                        <p class="text-slate-400 text-sm">Allow data export and download</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="data-export" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Section -->
+                        <div class="dashboard-card p-6">
+                            <h3 class="text-lg font-semibold text-white mb-4">Security</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-white font-medium mb-2">Change Password</label>
+                                    <button id="change-password-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg">Update Password</button>
+                                </div>
+                                <div>
+                                    <label class="block text-white font-medium mb-2">Two-Factor Authentication</label>
+                                    <div class="flex gap-3">
+                                        <button id="enable-2fa-btn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm">Enable 2FA</button>
+                                        <span class="text-red-400 text-sm px-3 py-2">Disabled</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-white font-medium mb-2">Session Management</label>
+                                    <button id="signout-devices-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">Sign Out All Devices</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Account Actions -->
+                        <div class="dashboard-card p-6">
+                            <h3 class="text-lg font-semibold text-white mb-4">Account Actions</h3>
+                            <div class="space-y-4">
+                                <button id="settings-signout" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg">
+                                    <i data-lucide="log-out" class="w-4 h-4 inline mr-2"></i>
+                                    Sign Out
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Custom Modal -->
+    <div id="custom-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="dashboard-card w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between p-6 border-b border-blue-light">
+                    <h2 id="modal-title" class="text-xl font-bold text-white">Modal Title</h2>
+                    <button id="modal-close-btn" class="text-slate-400 hover:text-white">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div id="modal-content" class="text-slate-300">
+                        <!-- Modal content will be populated here -->
+                    </div>
+                    <div id="modal-actions" class="mt-6 flex gap-4">
+                        <!-- Modal action buttons will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="report-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="dashboard-card w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between p-6 border-b border-blue-light">
+                    <h2 class="text-xl font-bold text-white">Institution Analysis Report</h2>
+                    <button id="close-modal-btn" class="text-slate-400 hover:text-white">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div id="report-content" class="text-slate-300 text-sm leading-relaxed"></div>
+                    <div id="email-section" class="mt-6"></div>
+                    <div class="mt-6 flex gap-4">
+                        <button id="draft-email-btn" class="bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-lg">
+                            Draft Email
+                        </button>
+                        <button id="download-pdf-btn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+                            Download PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
